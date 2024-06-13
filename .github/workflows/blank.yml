@@ -1,4 +1,4 @@
-name: Build and Package Application
+name: Download and Extract Package
 
 on:
   push:
@@ -9,34 +9,22 @@ on:
       - main
 
 jobs:
-  build:
+  download-and-extract:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16.x'
+    - name: Download package
+      run: wget -O package.tar.gz http://example.com/path/to/package.tar.gz
 
-    - name: Install dependencies
-      run: npm install
+    - name: Extract package
+      run: tar -xzvf package.tar.gz -C ./extracted
 
-    - name: Run tests
-      run: npm test
+    - name: List contents
+      run: ls -la ./extracted
 
-    - name: Build application
-      run: npm run build
-
-    - name: Package application
-      run: |
-        mkdir -p dist
-        tar -czf dist/my-application.tar.gz -C path/to/build/output .
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: my-application
-        path: dist/my-application.tar.gz
+    - name: Run script in extracted directory
+      run: ./extracted/some-script.sh
+      working-directory: ./extracted
