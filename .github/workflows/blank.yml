@@ -1,4 +1,4 @@
-name: Download and Extract Package
+name: Setup Tomcat
 
 on:
   push:
@@ -9,32 +9,23 @@ on:
       - main
 
 jobs:
-  download-and-extract:
+  setup-tomcat:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Download package with retries
+    - name: Download Tomcat
+      run: wget -O tomcat.tar.gz https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.64/bin/apache-tomcat-9.0.64.tar.gz
+
+    - name: Extract Tomcat
       run: |
-        URL1="http://example.com/path/to/package.tar.gz"
-        URL2="http://backup.example.com/path/to/package.tar.gz"
-        for i in {1..5}; do
-          wget -O package.tar.gz $URL1 && break || sleep 15
-          if [ $i -eq 5 ]; then
-            wget -O package.tar.gz $URL2
-          fi
-        done
+        mkdir -p tomcat
+        tar -xzvf tomcat.tar.gz -C ./tomcat --strip-components=1
 
-    - name: Extract package
-      run: |
-        mkdir -p extracted
-        tar -xzvf package.tar.gz -C ./extracted
+    - name: List contents of Tomcat directory
+      run: ls -la ./tomcat
 
-    - name: List contents
-      run: ls -la ./extracted
-
-    - name: Run script in extracted directory
-      run: ./some-script.sh
-      working-directory: ./extracted
+    - name: Start Tomcat
+      run: ./tomcat/bin/startup.sh
